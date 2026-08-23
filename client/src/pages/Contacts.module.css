@@ -1,0 +1,78 @@
+.page { padding: 24px; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; }
+.title { font-size: 20px; font-weight: 700; }
+.subtitle { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
+
+.infoBox {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--primary-container);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--on-primary-container);
+  line-height: 1.5;
+}
+
+.form {
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: visible;
+}
+
+.formTitle { font-size: 16px; font-weight: 600; }
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--on-surface-variant); }
+
+.error { background: var(--error-container); color: var(--error); padding: 10px 12px; border-radius: var(--radius); font-size: 13px; }
+.empty { text-align: center; padding: 48px 24px; color: var(--on-surface); }
+
+.list { display: flex; flex-direction: column; gap: 10px; }
+
+.contactCard {
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--primary-container);
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.contactInfo { flex: 1; min-width: 0; }
+.contactName { font-size: 15px; font-weight: 600; color: var(--on-surface); }
+.contactPhone { font-size: 13px; color: var(--on-surface-variant); font-family: var(--font-mono); margin-top: 2px; }
+.contactRel { font-size: 12px; color: var(--secondary); margin-top: 2px; }
+
+.deleteBtn {
+  background: none;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface-variant);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+.deleteBtn:hover { border-color: var(--error); color: var(--error); background: var(--error-container); }

@@ -1,0 +1,318 @@
+[
+  {
+    "id": "police_bhiwandi_city",
+    "name": "Bhiwandi City Police Station",
+    "address": "170, Kumbhar Ali Road, Kumbhar Ali, Mandai, Bhiwandi, Maharashtra 421302",
+    "lat": 19.298896,
+    "lng": 73.056877,
+    "type": "police"
+  },
+  {
+    "id": "police_nizampura",
+    "name": "Nizampura Police Station",
+    "address": "Old BNMC Building, Juna Street Road, Old Zakat Naka, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2988925,
+    "lng": 73.0630357,
+    "type": "police"
+  },
+  {
+    "id": "police_shantinagar",
+    "name": "Shantinagar Police Station",
+    "address": "Maulana Azad Road, near Ashok Nagar Road, Gaibi Nagar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.292177,
+    "lng": 73.066985,
+    "type": "police"
+  },
+  {
+    "id": "police_bhoiwada",
+    "name": "Bhoiwada Police Station",
+    "address": "Bhiwandi - Wada Road, Narpoli Gaon, Kamatghar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2841486,
+    "lng": 73.0508289,
+    "type": "police"
+  },
+  {
+    "id": "police_narpoli",
+    "name": "Narpoli Police Station",
+    "address": "Kamatghar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2840939,
+    "lng": 73.0507598,
+    "type": "police"
+  },
+  {
+    "id": "police_kongaon",
+    "name": "Kongaon Police Station",
+    "address": "Jambhulwadi, Sapna Industrial Estate, Saravali, Kongaon, Maharashtra 421311",
+    "lat": 19.2462802,
+    "lng": 73.1096578,
+    "type": "police"
+  },
+  {
+    "id": "police_bhiwandi_taluka",
+    "name": "Bhiwandi Taluka Police Station",
+    "address": "124/4, Maulana Azad Road, Kacheri Pada, Old Zakat Naka, Gulzar Nagar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2986055,
+    "lng": 73.0660365,
+    "type": "police"
+  },
+
+  {
+    "id": "hospital_indira_gandhi",
+    "name": "Indira Gandhi Memorial Hospital, Bhiwandi",
+    "address": "Ansari Road, near Panchayat Samiti, Kacheri Pada, Gulzar Nagar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2989603,
+    "lng": 73.0670974,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_ss_research",
+    "name": "SS Hospital & Research Centre",
+    "address": "Pavan Putra Enclave, opposite Jain Temple, Kalher, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2451,
+    "lng": 73.01757,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_ved",
+    "name": "Ved Hospital",
+    "address": "Vedant Chamber, near Durgadi Bridge, Bhiwandi-Kalyan Road, Jambhulwadi, Kon, Bhiwandi, Maharashtra 421302",
+    "lat": 19.246767,
+    "lng": 73.109067,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_metro",
+    "name": "Metro Superspeciality Hospital, Bhiwandi",
+    "address": "Kapil Bling, Bhaji Market Road, near Geeta Mandir Road, Dhamankar Naka, Padma Nagar, Bhiwandi, Maharashtra 421305",
+    "lat": 19.2815,
+    "lng": 73.0545,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_rainbow",
+    "name": "Rainbow Multispeciality Hospital",
+    "address": "Khadak Road, Kuwari Compound, Gokul Nagar, Bhiwandi, Maharashtra",
+    "lat": 19.2980,
+    "lng": 73.0620,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_prime",
+    "name": "Prime Hospital, Shastri Nagar",
+    "address": "1513, Kalyan-Bhiwandi Road, Shastri Nagar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2865,
+    "lng": 73.0655,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_apex",
+    "name": "Apex Multispeciality Hospital & ICU",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.296962,
+    "lng": 73.0621718,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_citizen",
+    "name": "Citizen Hospital",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.2929284,
+    "lng": 73.0597519,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_drwaghmare",
+    "name": "Dr Waghmares Life Line Hospital & ICCU",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.2922714,
+    "lng": 73.0553668,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_gurukrupa",
+    "name": "Guru Krupa Hospital & Polyclinic",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.2840189,
+    "lng": 73.0502421,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_soham",
+    "name": "Soham Hospital",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.2921335,
+    "lng": 73.0589412,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_siraj",
+    "name": "Siraj Memorial Hospital & Diagnostic Center",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.306306,
+    "lng": 73.0655649,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_zohrabi",
+    "name": "Smt. Zohrabi Children's Hospital",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.3006248,
+    "lng": 73.0552914,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_shree_prajakta",
+    "name": "Shree Prajakta Multispeciality Hospital",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.3057972,
+    "lng": 73.0576484,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_mehar",
+    "name": "Mehar Hospital & ICCU",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.2920987,
+    "lng": 73.0553363,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_rahat",
+    "name": "Rahat Hospital",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.299093,
+    "lng": 73.0620441,
+    "type": "hospital"
+  },
+  {
+    "id": "hospital_firstcare",
+    "name": "First Care Hospital",
+    "address": "Bhiwandi, Maharashtra",
+    "lat": 19.3056075,
+    "lng": 73.0680835,
+    "type": "hospital"
+  },
+
+  {
+    "id": "fire_bhiwandi_agnishaman",
+    "name": "Bhiwandi Agnishaman Dal",
+    "address": "Nazarana Compound, Gokul Nagar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.302777,
+    "lng": 73.057299,
+    "type": "fire_station"
+  },
+  {
+    "id": "fire_nizampura",
+    "name": "Nizampura Fire Brigade",
+    "address": "Peeli School Road, Nazarana Compound, Gokul Nagar, Bhiwandi, Maharashtra 421302",
+    "lat": 19.3021608,
+    "lng": 73.0599537,
+    "type": "fire_station"
+  },
+
+  {
+    "id": "pharmacy_wellness_forever_bhiwandi",
+    "name": "Wellness Forever Pharmacy - Chhatrapati Shivaji Maharaj Chowk",
+    "address": "Shop No. 7, Anantam Heights, Chhatrapati Shivaji Maharaj Chowk, Nazarana Compound, Gokul Nagar, Bhiwandi, Maharashtra 421308",
+    "lat": 19.2995,
+    "lng": 73.0605,
+    "type": "pharmacy"
+  },
+  {
+    "id": "pharmacy_sattar_medical",
+    "name": "Sattar Medical Stores",
+    "address": "Maulana Azad Road, Gaibi Nagar, Bhiwandi, Maharashtra",
+    "lat": 19.2938144,
+    "lng": 73.0785646,
+    "type": "pharmacy"
+  },
+  {
+    "id": "pharmacy_apna_chemist",
+    "name": "Apna Chemist & Super Market",
+    "address": "Ajay Nagar, Bazar Peth, Bhiwandi, Maharashtra 421308",
+    "lat": 19.2970,
+    "lng": 73.0580,
+    "type": "pharmacy"
+  },
+  {
+    "id": "pharmacy_curewell",
+    "name": "Curewell Pharmacy & Supermart",
+    "address": "Amber Height, near Millat Nagar Road, Millat Nagar, Avachit Pada, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2860,
+    "lng": 73.0610,
+    "type": "pharmacy"
+  },
+
+  {
+    "id": "petrol_hp_narpoli",
+    "name": "HP Petrol Pump - Narpoli",
+    "address": "Agra Road, Narpoli, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2837214,
+    "lng": 73.0499216,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_tci_kopar",
+    "name": "TCI Petrol Pump",
+    "address": "Thane-Bhiwandi Highway, Kopar, Maharashtra 421302",
+    "lat": 19.2544812,
+    "lng": 73.0227582,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_jk_purna",
+    "name": "J K Petrol Pump",
+    "address": "Saikrupa, Purna, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2571577,
+    "lng": 73.0259598,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_hp_sonale",
+    "name": "HP Petrol Pump - Bhiwandi Bypass Road",
+    "address": "Bhiwandi Bypass Road, Village Sonale, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2853771,
+    "lng": 73.10758,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_indianoil_dapode",
+    "name": "IndianOil Petrol Pump - Dapode",
+    "address": "Dapode, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2549959,
+    "lng": 73.043492,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_hp_purna",
+    "name": "HP Petrol Pump - Purna",
+    "address": "Bhiwandi-Wada Road, Purna, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2646646,
+    "lng": 73.0324386,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_manascng_dapode",
+    "name": "Manas CNG Station",
+    "address": "Dapode, Bhiwandi, Maharashtra 421302",
+    "lat": 19.2552867,
+    "lng": 73.0437398,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_indianoil_chavindra",
+    "name": "IndianOil Petrol Pump - Chavindra",
+    "address": "Nashik Road, Chavindra, Bhiwandi, Maharashtra 421302",
+    "lat": 19.3170383,
+    "lng": 73.0762566,
+    "type": "petrol_pump"
+  },
+  {
+    "id": "petrol_shelar_auto",
+    "name": "IndianOil Petrol Pump - Shelar Auto",
+    "address": "Shelar, Bhiwandi, Maharashtra",
+    "lat": 19.3167523,
+    "lng": 73.0660142,
+    "type": "petrol_pump"
+  }
+]
