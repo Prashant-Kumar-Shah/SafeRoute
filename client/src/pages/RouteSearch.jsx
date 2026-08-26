@@ -239,6 +239,61 @@ function getRoutePositions(route) {
     .map(([lng, lat]) => [Number(lat), Number(lng)]);
 }
 
+/*
+ * Real-world distance (in meters) between two lat/lng points.
+ */
+function haversineDistanceMeters(lat1, lng1, lat2, lng2) {
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const earthRadiusMeters = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusMeters * c;
+}
+
+/*
+ * Trims a polyline so it never overshoots the actual destination.
+ * The routing engine sometimes loops slightly past the real destination
+ * before terminating, which means the globally-closest point can end up
+ * AFTER that loop. To avoid drawing the overshoot, this stops the route
+ * at the FIRST point (in travel order) that comes within a small
+ * real-world distance of the destination. If no point ever gets close
+ * enough, it falls back to trimming at the single closest point overall.
+ */
+function trimPositionsToDestination(positions, destination, thresholdMeters = 40) {
+  if (!Array.isArray(positions) || positions.length < 2) return positions;
+  if (!destination) return positions;
+
+  const destLat = Number(destination.lat);
+  const destLng = Number(destination.lng);
+  if (!Number.isFinite(destLat) || !Number.isFinite(destLng)) return positions;
+
+  for (let index = 0; index < positions.length; index += 1) {
+    const [lat, lng] = positions[index];
+    if (haversineDistanceMeters(lat, lng, destLat, destLng) <= thresholdMeters) {
+      return positions.slice(0, index + 1);
+    }
+  }
+
+  let closestIndex = positions.length - 1;
+  let closestDistance = Infinity;
+
+  positions.forEach(([lat, lng], index) => {
+    const distance = haversineDistanceMeters(lat, lng, destLat, destLng);
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestIndex = index;
+    }
+  });
+
+  if (closestIndex >= positions.length - 1) return positions;
+
+  return positions.slice(0, closestIndex + 1);
+}
+
 /* ================================ MAIN COMPONENT ================================ */
 
 export default function RouteSearch() {
@@ -734,7 +789,10 @@ export default function RouteSearch() {
 
   /* ============================= CURRENT SELECTED ROUTE ============================= */
 
-  const selectedRoutePositions = useMemo(() => getRoutePositions(selectedRoute), [selectedRoute]);
+  const selectedRoutePositions = useMemo(
+    () => trimPositionsToDestination(getRoutePositions(selectedRoute), result?.destination),
+    [selectedRoute, result]
+  );
 
   /* ================================= RENDER ================================= */
 
@@ -966,8 +1024,8 @@ export default function RouteSearch() {
       <div className={styles.mapArea}>
         <MapContainer center={BHIWANDI_CENTER} zoom={13} style={{ height: '100%', width: '100%' }} zoomControl={false}>
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution="&copy; OpenStreetMap contributors &copy; CARTO"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
 
           <MapController center={mapCenter} />

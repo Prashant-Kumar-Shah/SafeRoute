@@ -435,3 +435,8 @@
   transform: translateX(20px);
   background-color: var(--secondary);
 }
+
+
+.mapArea :global(.leaflet-tile-pane) {
+  filter: brightness(0.42) contrast(1.2) saturate(0.55);
+}

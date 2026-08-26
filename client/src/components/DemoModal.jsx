@@ -327,10 +327,12 @@ function Slide2() {
             boxZoom={false}
             style={{ height: '100%', width: '100%', borderRadius: '12px' }}
           >
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; OpenStreetMap &copy; CARTO'
+           <TileLayer
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+              maxZoom={19}
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors'
             />
+            
             <Polyline
               positions={routePoints}
               pathOptions={{

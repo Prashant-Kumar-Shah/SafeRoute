@@ -443,3 +443,8 @@
     height: 180px;
   }
 }
+
+
+.mapArea :global(.leaflet-tile-pane) {
+  filter: brightness(0.42) contrast(1.2) saturate(0.55);
+}
