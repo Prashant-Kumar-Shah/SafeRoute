@@ -18,6 +18,55 @@ const SAFEST_COLOR = '#6bdc96';
 const FASTEST_COLOR = '#adc7f7';
 const INCIDENT_COLOR = '#ffb866';
 const DESTINATION_COLOR = '#ff5f6d';
+const MY_LOCATION_COLOR = '#5ec8ff';
+
+/* ============================== MAP VIEW OPTIONS ============================== */
+const CARTO_API_KEY = 'cb1_2bns_1_9d8e30e95ac8960741058515';
+const THUNDERFOREST_API_KEY = '72ca806e7ebb4de3aee807af8d3bddd0';
+
+const MAP_VIEWS = {
+  standard: {
+    label: 'Standard',
+    icon: '🗺️',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19,
+  },
+  dark: {
+    label: 'Dark',
+    icon: '🌙',
+    url: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png${CARTO_API_KEY ? `?key=${CARTO_API_KEY}` : ''}`,
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 20,
+  },
+  satellite: {
+    label: 'Satellite',
+    icon: '🛰️',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+    maxZoom: 19,
+  },
+  terrain: {
+    label: 'Terrain',
+    icon: '🏙️',
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)',
+    maxZoom: 17,
+  },
+  transport: {
+    label: 'Transport',
+    icon: '🚦',
+    url: THUNDERFOREST_API_KEY
+      ? `https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=${THUNDERFOREST_API_KEY}`
+      : `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png${CARTO_API_KEY ? `?key=${CARTO_API_KEY}` : ''}`,
+    attribution: THUNDERFOREST_API_KEY
+      ? 'Maps &copy; Thunderforest, Data &copy; OpenStreetMap contributors'
+      : '&copy; OpenStreetMap contributors &copy; CARTO',
+    subdomains: THUNDERFOREST_API_KEY ? 'abc' : 'abcd',
+    maxZoom: 20,
+  },
+};
 
 /* ======================= INCIDENT MARKER CONFIGURATION ======================= */
 
@@ -122,6 +171,17 @@ const DEMO_ORIGIN = 'Bhiwandi Railway Station';
 const DEMO_DEST = 'B.N.N. College Bhiwandi';
 const isDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === 'true';
 
+/* ======================= MOBILE SHEET DRAG-TO-RESIZE ======================= */
+
+/*
+ * Bounds for the mobile bottom sheet's height, dragged via its handle.
+ * MIN is just tall enough to show the handle + title row (a "peeked"
+ * state); MAX leaves a sliver of map visible even fully expanded.
+ */
+const MOBILE_SHEET_MIN_VH = 15;
+const MOBILE_SHEET_MAX_VH = 85;
+const MOBILE_SHEET_DEFAULT_VH = 50;
+
 /* ============================ CUSTOM START MARKER ============================ */
 
 const createStartIcon = () => L.divIcon({
@@ -171,6 +231,33 @@ const createDestinationIcon = () => L.divIcon({
 
 const startIcon = createStartIcon();
 const destinationIcon = createDestinationIcon();
+
+/* ============================= "MY LOCATION" MARKER ============================= */
+
+function createMyLocationIcon() {
+  return L.divIcon({
+    className: 'saferoute-mylocation-marker',
+    html: `
+      <div style="position:relative;width:30px;height:30px;">
+        <div style="position:absolute;inset:0;border-radius:50%;background:${MY_LOCATION_COLOR}30;
+          border:2px solid ${MY_LOCATION_COLOR}80;animation:saferouteMyLocationPulse 1.8s ease-out infinite;"></div>
+        <div style="position:absolute;left:7px;top:7px;width:16px;height:16px;border-radius:50%;
+          background:${MY_LOCATION_COLOR};border:3px solid #ffffff;
+          box-shadow:0 0 14px ${MY_LOCATION_COLOR}cc;"></div>
+      </div>
+      <style>
+        @keyframes saferouteMyLocationPulse {
+          0% { transform:scale(0.7); opacity:0.9; }
+          70% { transform:scale(1.6); opacity:0; }
+          100% { transform:scale(1.6); opacity:0; }
+        }
+      </style>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15],
+  });
+}
 
 /* ============================== MAP CONTROLLER ============================== */
 
@@ -255,28 +342,23 @@ function haversineDistanceMeters(lat1, lng1, lat2, lng2) {
 }
 
 /*
- * Trims a polyline so it never overshoots the actual destination.
- * The routing engine sometimes loops slightly past the real destination
- * before terminating, which means the globally-closest point can end up
- * AFTER that loop. To avoid drawing the overshoot, this stops the route
- * at the FIRST point (in travel order) that comes within a small
- * real-world distance of the destination. If no point ever gets close
- * enough, it falls back to trimming at the single closest point overall.
+ * Trims a polyline so it always ends exactly at the destination.
+ * The routing engine's road-snapped path doesn't always pass exactly
+ * through the destination point (the place can sit off the road), so
+ * cutting purely by "is this point close enough" can leave either a
+ * visible overshoot or a gap depending on how the road happens to run.
+ * This finds the single closest point on the route to the destination,
+ * drops everything after it, then snaps that final point onto the exact
+ * destination coordinates — so the drawn line always terminates right
+ * at the pin, with neither a tail nor a gap.
  */
-function trimPositionsToDestination(positions, destination, thresholdMeters = 40) {
+function trimPositionsToDestination(positions, destination) {
   if (!Array.isArray(positions) || positions.length < 2) return positions;
   if (!destination) return positions;
 
   const destLat = Number(destination.lat);
   const destLng = Number(destination.lng);
   if (!Number.isFinite(destLat) || !Number.isFinite(destLng)) return positions;
-
-  for (let index = 0; index < positions.length; index += 1) {
-    const [lat, lng] = positions[index];
-    if (haversineDistanceMeters(lat, lng, destLat, destLng) <= thresholdMeters) {
-      return positions.slice(0, index + 1);
-    }
-  }
 
   let closestIndex = positions.length - 1;
   let closestDistance = Infinity;
@@ -289,14 +371,14 @@ function trimPositionsToDestination(positions, destination, thresholdMeters = 40
     }
   });
 
-  if (closestIndex >= positions.length - 1) return positions;
-
-  return positions.slice(0, closestIndex + 1);
+  const trimmed = positions.slice(0, closestIndex + 1);
+  trimmed.push([destLat, destLng]);
+  return trimmed;
 }
 
 /* ================================ MAIN COMPONENT ================================ */
 
-export default function RouteSearch() {
+export default function RouteSearch({ mobileSheetOpen = true, onCloseMobileSheet } = {}) {
   /* ---------------------------- ROUTE SEARCH ---------------------------- */
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
@@ -312,6 +394,51 @@ export default function RouteSearch() {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [navigating, setNavigating] = useState(false);
   const [mapCenter, setMapCenter] = useState(BHIWANDI_CENTER);
+  const [mapView, setMapView] = useState('dark');
+
+  /* ---------------------------- MOBILE SHEET HEIGHT ---------------------------- */
+  const [sheetHeightVh, setSheetHeightVh] = useState(MOBILE_SHEET_DEFAULT_VH);
+
+  /*
+   * Reset to the default height every time the sheet is freshly opened
+   * (via the outer nav's "Navigate" tap), so it doesn't reopen stuck at
+   * whatever size it was last dragged to.
+   */
+  useEffect(() => {
+    if (mobileSheetOpen) setSheetHeightVh(MOBILE_SHEET_DEFAULT_VH);
+  }, [mobileSheetOpen]);
+
+  /*
+   * Drag handler for the sheet's handle bar. info.delta.y is positive
+   * when the finger moves down, negative when it moves up — dragging UP
+   * should INCREASE height, so we subtract delta.y.
+   */
+  const handleSheetDrag = (event, info) => {
+    const deltaVh = (info.delta.y / window.innerHeight) * 100;
+    setSheetHeightVh((previous) =>
+      Math.min(MOBILE_SHEET_MAX_VH, Math.max(MOBILE_SHEET_MIN_VH, previous - deltaVh))
+    );
+  };
+
+  /*
+   * The ✕ button now does two things depending on current state:
+   * - If the sheet is anywhere above "closed", tapping it snaps straight
+   *   to fully CLOSED (minimum height) — and calls onCloseMobileSheet so
+   *   a parent that fully hides/unmounts the sheet on close can do so.
+   * - If it's already at (or very near) fully closed, tapping it again
+   *   snaps straight to fully OPEN (maximum height).
+   * Dragging the handle is untouched — this is just a quick two-way
+   * shortcut layered on top of it.
+   */
+  const handleMobileSheetToggle = () => {
+    setSheetHeightVh((previous) => {
+      const isNearlyClosed = previous <= MOBILE_SHEET_MIN_VH + 2;
+      return isNearlyClosed ? MOBILE_SHEET_MAX_VH : MOBILE_SHEET_MIN_VH;
+    });
+    if (sheetHeightVh > MOBILE_SHEET_MIN_VH + 2) {
+      onCloseMobileSheet?.();
+    }
+  };
 
   /* ---------------------------- INCIDENTS ---------------------------- */
   const [incidents, setIncidents] = useState([]);
@@ -340,6 +467,10 @@ export default function RouteSearch() {
 
   /* ---------------------------- GPS ---------------------------- */
   const { position, startWatch, stopWatch, getOnce: getGPSOnce } = useGPS();
+
+  /* ---------------------------- MY LOCATION MARKER ---------------------------- */
+  const [myLocation, setMyLocation] = useState(null);
+  const [locatingMe, setLocatingMe] = useState(false);
 
   /* ---------------------------- TOAST ---------------------------- */
   const [toastMessage, setToastMessage] = useState('');
@@ -395,12 +526,25 @@ export default function RouteSearch() {
 
   /* ============================= INITIAL LOAD ============================= */
 
+  /*
+   * getGPSOnce is kept in a ref so this effect's dependency array can stay
+   * empty. If useGPS() ever returns a new function identity on re-render
+   * (e.g. it isn't wrapped in useCallback), that no longer matters here —
+   * this effect still only fires once per real mount, instead of refiring
+   * on every re-render and hammering /api/incidents.
+   */
+  const getGPSOnceRef = useRef(getGPSOnce);
+
+  useEffect(() => {
+    getGPSOnceRef.current = getGPSOnce;
+  }, [getGPSOnce]);
+
   useEffect(() => {
     incidentsAPI.getAll(BHIWANDI_CENTER[0], BHIWANDI_CENTER[1], 5000)
       .then((response) => setIncidents(response.data?.incidents || []))
       .catch((err) => console.error('Failed to load incidents:', err));
-    getGPSOnce();
-  }, [getGPSOnce]);
+    getGPSOnceRef.current();
+  }, []);
 
   /* ============================= DEMO MODE ============================= */
 
@@ -704,6 +848,41 @@ export default function RouteSearch() {
     );
   };
 
+  /* ============================= LOCATE ME MARKER ============================= */
+
+  const handleLocateMe = () => {
+    /*
+     * TOGGLE: if the marker is already shown, a second click just hides
+     * it — no need to hit the GPS again.
+     */
+    if (myLocation) {
+      setMyLocation(null);
+      return;
+    }
+
+    setError('');
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser.');
+      return;
+    }
+    setLocatingMe(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setMyLocation({ lat, lng });
+        setMapCenter([lat, lng]);
+        setLocatingMe(false);
+      },
+      (err) => {
+        console.error('Locate me error:', err);
+        setError('Location access denied. Please enable GPS to use this feature.');
+        setLocatingMe(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
   /* ============================= ROUTE SELECTION ============================= */
 
   const handleSelectRoute = (route) => {
@@ -799,10 +978,35 @@ export default function RouteSearch() {
   return (
     <div className={styles.page}>
       {/* ============================= LEFT PANEL ============================= */}
-      <div className={styles.panel}>
+      <div
+        className={`${styles.panel} ${mobileSheetOpen ? styles.panelOpen : ''}`}
+        style={{ '--mobile-sheet-height': `${sheetHeightVh}vh` }}
+      >
+        {/* Drag-handle — only visible on mobile (bottom sheet). Drag up to
+            grow the sheet, drag down to shrink it. */}
+        <motion.div
+          className={styles.mobileSheetHandle}
+          onPan={handleSheetDrag}
+          style={{ touchAction: 'none', cursor: 'grab' }}
+        >
+          <span />
+        </motion.div>
+
         <div className={styles.panelHeader}>
-          <h1 className={styles.title}>Navigate Safely</h1>
-          <p className={styles.subtitle}>Bhiwandi · Score-ranked routes</p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div>
+              <h1 className={styles.title}>Navigate Safely</h1>
+              <p className={styles.subtitle}>Bhiwandi · Score-ranked routes</p>
+            </div>
+            <button
+              type="button"
+              className={styles.mobileCloseBtn}
+              onClick={handleMobileSheetToggle}
+              aria-label={sheetHeightVh <= MOBILE_SHEET_MIN_VH + 2 ? 'Open panel' : 'Close panel'}
+            >
+              {sheetHeightVh <= MOBILE_SHEET_MIN_VH + 2 ? '▲' : '✕'}
+            </button>
+          </div>
         </div>
 
         {/* SAFE HAVENS TOGGLE */}
@@ -1024,8 +1228,11 @@ export default function RouteSearch() {
       <div className={styles.mapArea}>
         <MapContainer center={BHIWANDI_CENTER} zoom={13} style={{ height: '100%', width: '100%' }} zoomControl={false}>
           <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            key={mapView}
+            url={MAP_VIEWS[mapView].url}
+            attribution={MAP_VIEWS[mapView].attribution}
+            maxZoom={MAP_VIEWS[mapView].maxZoom}
+            subdomains={MAP_VIEWS[mapView].subdomains || 'abc'}
           />
 
           <MapController center={mapCenter} />
@@ -1235,7 +1442,24 @@ export default function RouteSearch() {
               <Popup>📍 You are here</Popup>
             </Marker>
           )}
+
+          {/* MY LOCATION (Locate Me button result) */}
+          {myLocation && (
+            <Marker
+              position={[myLocation.lat, myLocation.lng]}
+              icon={createMyLocationIcon()}
+              zIndexOffset={3500}
+            >
+              <Popup>📍 You are here</Popup>
+            </Marker>
+          )}
         </MapContainer>
+
+        {/* MAP VIEW SWITCHER */}
+        <MapViewSwitcher mapView={mapView} setMapView={setMapView} />
+
+        {/* LOCATE ME */}
+        <LocateMeButton onClick={handleLocateMe} locating={locatingMe} active={!!myLocation} />
 
         {/* ROUTE LEGEND */}
         {selectedRoute && (
@@ -1269,9 +1493,10 @@ export default function RouteSearch() {
           </div>
         )}
 
-        {/* MAP LAYER LEGENDS */}
+        {/* MAP LAYER LEGENDS — hidden on mobile via .mapLayerLegend, see CSS */}
         {(showIncidents || showSafeHavens) && (
           <div
+            className={styles.mapLayerLegend}
             style={{
               position: 'absolute',
               right: 20,
@@ -1383,6 +1608,175 @@ export default function RouteSearch() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/* ============================== MAP VIEW SWITCHER ============================== */
+
+function MapViewSwitcher({ mapView, setMapView }) {
+  const [open, setOpen] = useState(false);
+  const switcherRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (switcherRef.current && !switcherRef.current.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const current = MAP_VIEWS[mapView];
+
+  return (
+    <div ref={switcherRef} style={{ position: 'absolute', top: 20, right: 20, zIndex: 1000 }}>
+      <button
+        type="button"
+        onClick={() => setOpen((previous) => !previous)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '9px 14px',
+          borderRadius: 12,
+          background: 'rgba(11,19,38,0.94)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.35)',
+          color: '#ffffff',
+          fontSize: 12,
+          fontWeight: 700,
+          cursor: 'pointer',
+        }}
+      >
+        <span style={{ fontSize: 15 }}>{current.icon}</span>
+        <span>{current.label}</span>
+        <span style={{ fontSize: 9, opacity: 0.6 }}>{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            marginTop: 8,
+            padding: 6,
+            borderRadius: 12,
+            background: 'rgba(11,19,38,0.94)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.35)',
+            minWidth: 175,
+          }}
+        >
+          {Object.entries(MAP_VIEWS).map(([key, view]) => {
+            const active = key === mapView;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setMapView(key);
+                  setOpen(false);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  width: '100%',
+                  padding: '8px 10px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: active ? 'rgba(107,220,150,0.12)' : 'transparent',
+                  color: active ? '#6bdc96' : '#ffffff',
+                  fontSize: 12,
+                  fontWeight: active ? 800 : 500,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+              >
+                <span style={{ fontSize: 15 }}>{view.icon}</span>
+                <span>{view.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ================================ LOCATE ME BUTTON ================================ */
+
+function LocateMeButton({ onClick, locating, active }) {
+  return (
+    <>
+      <style>{`
+        @keyframes locateMeButtonPulse {
+          0% { transform: scale(0.6); opacity: 0.9; }
+          70% { transform: scale(2.4); opacity: 0; }
+          100% { transform: scale(2.4); opacity: 0; }
+        }
+      `}</style>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={locating}
+        title={active ? 'Hide my location' : 'Show my location'}
+        style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 9,
+          padding: '9px 14px',
+          borderRadius: 12,
+          background: active ? `${MY_LOCATION_COLOR}22` : 'rgba(11,19,38,0.94)',
+          border: `1px solid ${active ? MY_LOCATION_COLOR : 'rgba(255,255,255,0.12)'}`,
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.35)',
+          color: active ? MY_LOCATION_COLOR : '#ffffff',
+          fontSize: 12,
+          fontWeight: 700,
+          cursor: locating ? 'default' : 'pointer',
+          opacity: locating ? 0.7 : 1,
+        }}
+      >
+        <span
+          style={{
+            position: 'relative',
+            width: 14,
+            height: 14,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: MY_LOCATION_COLOR,
+              opacity: 0.55,
+              animation: 'locateMeButtonPulse 1.8s ease-out infinite',
+            }}
+          />
+          <span
+            style={{
+              position: 'relative',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: MY_LOCATION_COLOR,
+              border: '2px solid #ffffff',
+              boxShadow: `0 0 6px ${MY_LOCATION_COLOR}cc`,
+            }}
+          />
+        </span>
+        <span>{locating ? 'Locating...' : 'My Location'}</span>
+      </button>
+    </>
   );
 }
 

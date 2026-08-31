@@ -382,11 +382,97 @@
   width: 100%;
 }
 
+/* Mobile-only affordances (hidden on desktop by default) */
+.mobileSheetHandle { display: none; }
+.mobileCloseBtn { display: none; }
+
+/* ============================================================================
+   MOBILE — bottom sheet instead of stacked panel
+   The panel becomes a fixed sheet that slides up from above the bottom nav
+   (owned by Layout.jsx) instead of pushing the map down. Toggled open/closed
+   via the `.panelOpen` class, driven by the `mobileSheetOpen` prop.
+
+   IMPORTANT: the sheet's height is read from the --mobile-sheet-height CSS
+   variable (set inline from JS, updated by dragging the handle or tapping
+   the arrow buttons). That variable is only ever CONSUMED here, inside this
+   media query — so on desktop, where this whole block doesn't apply, it's
+   structurally impossible for it to affect anything, regardless of what
+   the `mobileSheetOpen` prop happens to resolve to. This is what broke the
+   desktop layout before: the old version applied max-height as a plain
+   inline style gated only on the `mobileSheetOpen` JS boolean, which has no
+   relationship to actual screen width and defaults to true.
+============================================================================ */
 @media (max-width: 768px) {
-  .page { flex-direction: column; }
-  .panel { width: 100%; height: auto; max-height: 45vh; border-right: none; border-bottom: 1px solid var(--outline-variant); }
-  .mapArea { flex: 1; min-height: 0; }
-  .fab { bottom: 90px; }
+  .page {
+    height: 100%;
+    position: relative;
+  }
+
+  .mapArea {
+    width: 100%;
+    height: 100%;
+  }
+
+  .panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 64px; /* sits just above Layout's fixed bottom nav */
+    width: 100%;
+    max-height: var(--mobile-sheet-height, 50vh);
+    padding: 12px 16px;
+    gap: 10px;
+    overflow-y: auto;
+    border-right: none;
+    border-top: 1px solid var(--outline-variant);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+    transform: translateY(100%);
+    transition: transform 0.3s ease, max-height 0.05s linear;
+    z-index: 1600;
+  }
+
+  .panelOpen {
+    transform: translateY(0);
+  }
+
+  .mobileSheetHandle {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 0;
+    flex-shrink: 0;
+  }
+
+  .mobileSheetHandle span {
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--outline-variant);
+  }
+
+  .mobileCloseBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface-container-high);
+    border: 1px solid var(--outline-variant);
+    color: var(--on-surface-variant);
+    font-size: 13px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .fab { bottom: 150px; }
+
+  /*
+   * The incidents/safe-havens legend is a large fixed box — on a small
+   * phone screen it covers most of the map. Hiding it on mobile only;
+   * desktop is untouched.
+   */
+  .mapLayerLegend { display: none; }
 }
 
 /* Toggle Switch Styling */
@@ -434,9 +520,4 @@
 .switch input:checked + .slider:before {
   transform: translateX(20px);
   background-color: var(--secondary);
-}
-
-
-.mapArea :global(.leaflet-tile-pane) {
-  filter: brightness(0.42) contrast(1.2) saturate(0.55);
 }
