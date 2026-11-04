@@ -5,14 +5,13 @@
 
 Standard GPS apps optimize for the fastest route, which frequently leads pedestrians, solo night commuters, tourists, and students through dark, isolated, or high-risk shortcuts. SafeRoute solves this by calculating safety scores using real-time lighting levels, crowdsourced incident reports, time-of-day risks, and proximity to safe havens.
 
----
 
 
 ---
 
 ## 🌐 Live Demo & Project Documentation
 
-🚀 **Live Website:** [Open SafeRoute](PASTE_YOUR_RENDER_URL_HERE)
+🚀 **Live Website:** [Open SafeRoute](https://saferoute-client.onrender.com)
 
 📄 **Project Report:** [View SafeRoute Report (PDF)](./SafeRoute%20Report.pdf)
 
