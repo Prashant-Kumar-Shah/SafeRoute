@@ -7,6 +7,20 @@ Standard GPS apps optimize for the fastest route, which frequently leads pedestr
 
 ---
 
+
+---
+
+## 🌐 Live Demo & Project Documentation
+
+🚀 **Live Website:** [Open SafeRoute](PASTE_YOUR_RENDER_URL_HERE)
+
+📄 **Project Report:** [View SafeRoute Report (PDF)](./SafeRoute%20Report.pdf)
+
+📊 **Project Presentation:** [View SafeRoute Presentation (PDF)](./SafeRoute%20Presentation.pdf)
+
+---
+
+
 ## 🛠️ Tech Stack
 
 ### Frontend (Client)
